@@ -1,0 +1,29 @@
+function search = PicSearchMain(name,HOGLSH,ColorLSH,FeaturesHOG,...
+    FeaturesColor,Pictures)
+
+
+currentPic = imread(name);
+currentHOGFeature = HOG(currentPic)*255;
+currentColorFeature = getcolorMom(currentPic)*10000;
+
+tic;
+[nnlshHOG,numcandHOG]=lshlookup(currentHOGFeature,FeaturesHOG,HOGLSH,...
+    'k',100,'distfun','lpnorm','distargs',{1});
+[nnlshColor,numcandColor]=lshlookup(currentColorFeature,FeaturesColor,...
+    ColorLSH,'k',100,'distfun','lpnorm','distargs',{1});
+toc;
+
+nnlsh = intersect(nnlshHOG,nnlshColor);
+n = max(size(nnlsh));
+
+if n > 12
+    n = 12;
+end
+search = cell(1,n);
+for k = 1:n
+    search{k} = Pictures{nnlsh(k)};
+end
+
+% figure(1);
+% clf;
+% for k=1:10, subplot(2,5,k);imshow(Pictures(k)); colormap gray;axis image; end
